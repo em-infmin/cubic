@@ -5,13 +5,200 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+  <title>Drive Cubic</title>
 </head>
 
 <body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
+  <div class="container">
+    <!-- Step 1: Select Pickup Location -->
+    <div id="step1">
+      <h1>Find A Car Now!</h1> <!-- Title for Step 1 -->
+      <label for="location">Pick Up Location</label>
+      <select id="location" required>
+        <option value="">Select Location</option>
+        <option value="Downtown Branch">Downtown Branch</option>
+        <option value="Airport Terminal">Airport Terminal</option>
+        <option value="Suburb Center">Suburb Center</option>
+        <option value="City Mall Kiosk">City Mall Kiosk</option>
+      </select>
+  
+      <button type="button" id="continueBtn" disabled>Continue</button>
+    </div>
+  
+    <!-- Step 2: Select Pick Up Date, Time, and Return Info -->
+    <div id="step2">
+      <!-- change the banner location -->
+      <div class="banner">
+        <img src="C:\Users\emers\Desktop\banners\MossyToyota.png" alt="Rental Banner" />
+      </div>    
+      <h1>Select Rental Dates</h1> <!-- Changed back to "Select Rental Dates" -->
+      <form id="bookingForm">
+        <div class="form-row">
+          <div>
+            <label for="pickupDate">Pick Up Date</label>
+            <input type="date" id="pickupDate" required>
+          </div>
+          <div>
+            <label for="pickupTime">Pick Up Time</label>
+            <div class="time-container">
+              <!-- Hour Dropdown for Pick Up Time (6 AM to 10 PM) -->
+              <select id="pickupTime" required>
+                <option value="">Select Time</option>
+                <script>
+                  function generateTimeOptions(selectElement) {
+                    const hours = [
+                      { hour: 6, period: 'AM' },
+                      { hour: 7, period: 'AM' },
+                      { hour: 8, period: 'AM' },
+                      { hour: 9, period: 'AM' },
+                      { hour: 10, period: 'AM' },
+                      { hour: 11, period: 'AM' },
+                      { hour: 12, period: 'PM' },
+                      { hour: 1, period: 'PM' },
+                      { hour: 2, period: 'PM' },
+                      { hour: 3, period: 'PM' },
+                      { hour: 4, period: 'PM' },
+                      { hour: 5, period: 'PM' },
+                      { hour: 6, period: 'PM' },
+                      { hour: 7, period: 'PM' },
+                      { hour: 8, period: 'PM' },
+                      { hour: 9, period: 'PM' },
+                      { hour: 10, period: 'PM' }
+                    ];
+  
+                    hours.forEach(time => {
+                      let option = document.createElement('option');
+                      option.value = `${time.hour}:00 ${time.period}`;
+                      option.textContent = `${time.hour}:00 ${time.period}`;
+                      selectElement.appendChild(option);
+                    });
+                  }
+  
+                  // Call the function to generate options for pickup time
+                  generateTimeOptions(document.getElementById('pickupTime'));
+                </script>
+              </select>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Return Date and Time (Always Visible) -->
+        <div class="form-row">
+          <div>
+            <label for="returnDate">Return Date</label>
+            <input type="date" id="returnDate">
+          </div>
+          <div>
+            <label for="returnTime">Return Time</label>
+            <div class="time-container">
+              <!-- Hour Dropdown for Return Time (6 AM to 10 PM) -->
+              <select id="returnTime">
+                <option value="">Select Time</option>
+                <script>
+                  // Call the function to generate options for return time
+                  generateTimeOptions(document.getElementById('returnTime'));
+                </script>
+              </select>
+            </div>
+          </div>
+        </div>
+  
+        <button type="submit" id="submitBtn" disabled>Search</button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // Wait for the DOM to load before executing
+    window.onload = function() {
+      const today = new Date().toISOString().split('T')[0]; // Get current date (YYYY-MM-DD)
+      document.getElementById('pickupDate').setAttribute('min', today); // Set today's date as the minimum for pick up
+  
+      // Get the form, button, and input elements
+      const locationSelect = document.getElementById('location');
+      const continueBtn = document.getElementById('continueBtn');
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const pickupDateInput = document.getElementById('pickupDate');
+      const pickupTimeSelect = document.getElementById('pickupTime');
+      const returnDateInput = document.getElementById('returnDate');
+      const returnTimeSelect = document.getElementById('returnTime');
+      const submitBtn = document.getElementById('submitBtn');
+  
+      // Enable the "Continue" button when a location is selected
+      locationSelect.addEventListener('change', function() {
+        continueBtn.disabled = locationSelect.value === "";
+      });
+  
+      // Show step 2 when the "Continue" button is clicked
+      continueBtn.addEventListener('click', function() {
+        step1.style.display = 'none'; // Hide step 1
+        step2.style.display = 'block'; // Show step 2
+      });
+  
+      // Show return fields when pick up date and time are selected
+      pickupDateInput.addEventListener('change', function() {
+        const pickupDate = new Date(pickupDateInput.value);
+        const returnDateMin = new Date(pickupDate);
+        returnDateMin.setDate(pickupDate.getDate() + 1); // Return date should be at least 1 day after pick up date
+  
+        // Update return date minimum value
+        returnDateInput.setAttribute('min', returnDateMin.toISOString().split('T')[0]);
+  
+        // Check if Pick Up Date is after Return Date
+        validateDatesAndEnableButton();
+      });
+  
+      returnDateInput.addEventListener('change', function() {
+        validateDatesAndEnableButton();
+      });
+  
+      // Function to validate dates and enable/disable the Search button
+      function validateDatesAndEnableButton() {
+        const pickupDate = new Date(pickupDateInput.value);
+        const returnDate = new Date(returnDateInput.value);
+  
+        // Check if Pick Up Date is after Return Date
+        if (pickupDate > returnDate) {
+          alert('Pick Up Date cannot be after Return Date!');
+          
+          // Reset the dates after alert is dismissed
+          pickupDateInput.value = '';
+          returnDateInput.value = '';
+          submitBtn.disabled = true; // Disable Search button after resetting dates
+        } else {
+          submitBtn.disabled = false; // Enable Search button if dates are valid
+        }
+  
+        // Enable the "Search" button once all fields are filled
+        enableSearchButton();
+      }
+  
+      // Enable the "Search" button once all fields are filled
+      function enableSearchButton() {
+        const dateSelected = pickupDateInput.value !== "";
+        const timeSelected = pickupTimeSelect.value !== "";
+        const returnDateSelected = returnDateInput.value !== "";
+        const returnTimeSelected = returnTimeSelect.value !== "";
+        submitBtn.disabled = !(dateSelected && timeSelected && returnDateSelected && returnTimeSelected);
+      }
+  
+      // Enable/disable the "Search" button based on form validation
+      const form = document.getElementById('bookingForm');
+      form.addEventListener('input', enableSearchButton);
+  
+      // Form submission logic (for now, just a basic alert)
+      form.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent the form from refreshing the page
+        const location = locationSelect.value;
+        const pickupDate = pickupDateInput.value;
+        const pickupTime = pickupTimeSelect.value;
+        const returnDate = returnDateInput.value;
+        const returnTime = returnTimeSelect.value;
+        alert(`Booking confirmed!\nLocation: ${location}\nPick Up Date: ${pickupDate}\nPick Up Time: ${pickupTime}\nReturn Date: ${returnDate}\nReturn Time: ${returnTime}`);
+      });
+    };
+  </script>
 </body>
 
 </html>
