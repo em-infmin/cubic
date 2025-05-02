@@ -88,9 +88,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Initially hide the second step */
-#step2 {
+/* HIDE STEP 1
+#step1 {
   display: none;
+}
+*/
+
+#step2 {
+  display: block;
 }
 
 .banner {
